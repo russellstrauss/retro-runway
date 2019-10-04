@@ -16,6 +16,7 @@ var white = new THREE.Color('white');
 let wireframeMaterial = new THREE.MeshBasicMaterial({ wireframe: true, color: pink, transparent: true, opacity: .3, side: THREE.DoubleSide });
 var count = 0;
 let sun;
+let textureImage, canvas;
 
 var leafOptions = [
 	{
@@ -155,7 +156,14 @@ let settings = {
 	},
 	runwayWidth: 500,
 	treeSpacing: 250,
-	sunDistance: 2000
+	sun: {
+		size: 600,
+		distance: 1500,
+		colors: {
+			top: '#EE1181',
+			bottom: 'red'
+		}
+	}
 };
 
 function init() {
@@ -184,11 +192,31 @@ function init() {
 	// gfx.setCameraLocation(camera, new THREE.Vector3(settings.defaultCameraLocation.x, settings.defaultCameraLocation.y, settings.defaultCameraLocation.z));
 	// gfx.setCameraDirection(camera, new THREE.Vector3(settings.defaultCameraLocation.x + 1000, settings.defaultCameraLocation.y, settings.defaultCameraLocation.z));
 	
-	var geometry = new THREE.CircleGeometry( 500, 32 );
+	
+
+	// image
+	var texture = new THREE.Texture( generateTexture() );
+	textureImage = texture.image
+
+	// material texture
+	var texture = new THREE.Texture( generateTexture() );
+	texture.needsUpdate = true; // important!
+
+	// material
+	var material = new THREE.MeshBasicMaterial( { map: texture, overdraw: 0.5, fog: false } );
+	
+	// mesh
+	// mesh = new THREE.Mesh( geometry, material );
+	// scene.add( mesh );
+	
+	
+	var geometry = new THREE.CircleGeometry( settings.sun.size, 32 );
+	geometry.translate(0, 100, 0);
 	geometry.rotateY(-Math.PI / 2);
-	var material = new THREE.MeshBasicMaterial( { color: pink, fog: false } );
+
+	//var material = new THREE.MeshBasicMaterial( { color: pink, fog: false } );
 	sun = new THREE.Mesh( geometry, material );
-	sun.position.x = settings.sunDistance;
+	sun.position.x = settings.sun.distance;
 	scene.add(sun);
 	
 	let trees = [];
@@ -221,7 +249,7 @@ function init() {
 		let curve = false;
 		if (i % 4 == 0) curve = getCurve();
 		let trunkGeometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
-		let leafGeometry = new LeafGeometry(leafOptions[randomInt(0, 11)]);
+		let leafGeometry = new LeafGeometry(leafOptions[randomInt(0, leafOptions.length)]);
 		let palm = new PalmGenerator(leafGeometry, trunkGeometry, palm_opt, curve);
 		let geometry = palm.geometry;
 		let bufGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
@@ -282,7 +310,7 @@ var animate = function() {
 	gfx.setCameraLocation(camera, new THREE.Vector3(settings.defaultCameraLocation.x - (settings.cameraSpeed * count), settings.defaultCameraLocation.y, settings.defaultCameraLocation.z));
 	gfx.setCameraDirection(camera, new THREE.Vector3(settings.defaultCameraLocation.x + (1000 * count), settings.defaultCameraLocation.y, settings.defaultCameraLocation.z));
 	
-	sun.position.x = settings.defaultCameraLocation.x - (settings.cameraSpeed * count) + settings.sunDistance;
+	sun.position.x = settings.defaultCameraLocation.x - (settings.cameraSpeed * count) + settings.sun.distance;
 	count++;
 };
 
@@ -314,5 +342,30 @@ function enableControls(controls, renderer, camera) {
 	controls.maxPolarAngle = Math.PI / 2;
 	return controls;
 }
+
+function generateTexture() {
+
+	var size = 512;
+
+	// create canvas
+	canvas = document.createElement( 'canvas' );
+	canvas.width = size;
+	canvas.height = size;
+
+	// get context
+	var context = canvas.getContext( '2d' );
+
+	// draw gradient
+	context.rect( 0, 0, size, size );
+	var gradient = context.createLinearGradient( size/2, 0, size/2, size );
+	gradient.addColorStop(0, settings.sun.colors.top);
+	gradient.addColorStop(1, settings.sun.colors.bottom);
+	context.fillStyle = gradient;
+	context.fill();
+
+	return canvas;
+
+}
+
 
 init();

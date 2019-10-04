@@ -50,7 +50,7 @@ export default {
 		scene.add(helper);
 		helper.translateOnAxis(new THREE.Vector3(0, 1, 0), .1);
 		scene.background = worldColor;
-		scene.fog = new THREE.Fog(new THREE.Color('black'), 600, 2000);
+		scene.fog = new THREE.Fog(new THREE.Color('black'), 500, 1200);
 		
 		return plane;
 	},
