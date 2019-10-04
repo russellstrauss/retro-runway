@@ -148,20 +148,21 @@ let settings = {
 		y: 100,
 		z: 0
 	},
-	cameraSpeed: 10,//.5,
+	cameraSpeed: .5,
 	colors: {
-		worldColor: new THREE.Color('red'),
+		worldColor: black,
 		gridColor: pink,
 		arrowColor: white
 	},
-	runwayWidth: 500,
+	runwayWidth: 300,
 	treeSpacing: 250,
 	sun: {
-		size: 600,
-		distance: 2000,
+		size: 400,
+		distance: 1200,
+		height: 75,
 		colors: {
-			top: '#EE1181',
-			bottom: 'red'
+			top: 'red',
+			bottom: '#EE1181'
 		}
 	}
 };
@@ -172,7 +173,7 @@ function init() {
 	renderer = gfx.setUpRenderer(renderer);
 	camera = gfx.setUpCamera(camera);
 	floor = gfx.addFloor(scene, settings.colors.worldColor, settings.colors.gridColor);
-	controls = enableControls(controls, renderer, camera);
+	//controls = enableControls(controls, renderer, camera);
 	
     window.addEventListener('resize', function() {
         let WIDTH = window.innerWidth,
@@ -210,7 +211,7 @@ function init() {
 	texture.needsUpdate = true; // important!
 	var material = new THREE.MeshBasicMaterial( { map: texture, overdraw: 0.5, fog: false } );
 	var geometry = new THREE.CircleGeometry( settings.sun.size, 32 );
-	geometry.translate(0, 100, 0);
+	geometry.translate(0, settings.sun.height, 0);
 	geometry.rotateY(-Math.PI / 2);
 
 	//var material = new THREE.MeshBasicMaterial( { color: pink, fog: false } );
@@ -219,7 +220,7 @@ function init() {
 	scene.add(sun);
 	
 	let trees = [];
-	for (let i = 0; i < 20; i++) {
+	for (let i = 0; i < 50; i++) {
 		
 		let leaf_opt = {
 			length: randomInt(20, 50),
@@ -255,11 +256,11 @@ function init() {
 		let mesh = new THREE.Mesh(bufGeometry, wireframeMaterial);
 		scene.add(mesh);
 		mesh.position.z -= settings.runwayWidth + randomInt(-50, 50);
-		mesh.position.x -= (settings.treeSpacing * i) + randomInt(-50, 50);
+		mesh.position.x -= (settings.treeSpacing * i - 1500) + randomInt(-50, 50);
 		trees.push(mesh);
 	}
 	
-	for (let i = 0; i < 20; i++) {
+	for (let i = 0; i < 50; i++) {
 		
 		let leaf_opt = {
 			length: randomInt(20, 50),
@@ -295,7 +296,7 @@ function init() {
 		let mesh = new THREE.Mesh(bufGeometry, wireframeMaterial);
 		scene.add(mesh);
 		mesh.position.z += settings.runwayWidth  + randomInt(-50, 50);
-		mesh.position.x -= (settings.treeSpacing * i) + randomInt(-50, 50);
+		mesh.position.x -= (settings.treeSpacing * i - 1500) + randomInt(-50, 50);
 		trees.push(mesh);
 	}
 	
@@ -377,8 +378,8 @@ function generateTexture() {
 	// draw gradient
 	context.rect( 0, 0, size, size );
 	var gradient = context.createLinearGradient( size/2, 0, size/2, size );
-	gradient.addColorStop(0, settings.sun.colors.top);
-	gradient.addColorStop(1, settings.sun.colors.bottom);
+	gradient.addColorStop(.25, settings.sun.colors.top);
+	gradient.addColorStop(.8, settings.sun.colors.bottom);
 	context.fillStyle = gradient;
 	context.fill();
 
