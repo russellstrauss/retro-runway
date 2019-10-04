@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 
-
 export default {
 
 	appSettings: {
@@ -38,13 +37,11 @@ export default {
 
 	addFloor: function(scene, worldColor, gridColor) {
 
-		var planeGeometry = new THREE.PlaneBufferGeometry(100, 100);
+		var planeGeometry = new THREE.PlaneBufferGeometry(10000, 10000);
 		planeGeometry.rotateX(-Math.PI / 2);
-		var planeMaterial = new THREE.ShadowMaterial();
-
+		var planeMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('black')});
 		var plane = new THREE.Mesh(planeGeometry, planeMaterial);
 		plane.position.y = -1;
-		plane.receiveShadow = false;
 		scene.add(plane);
 
 		var helper = new THREE.GridHelper(10000, 200, gridColor, gridColor);
@@ -53,7 +50,7 @@ export default {
 		scene.add(helper);
 		helper.translateOnAxis(new THREE.Vector3(0, 1, 0), .1);
 		scene.background = worldColor;
-		scene.fog = new THREE.Fog(new THREE.Color('black'), 600, 900);
+		scene.fog = new THREE.Fog(new THREE.Color('black'), 600, 2000);
 		
 		return plane;
 	},
@@ -247,7 +244,7 @@ export default {
 	},
 
 	setUpCamera: function(camera) {
-		camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
+		camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000);
 		return camera;
 	},
 
@@ -379,19 +376,6 @@ export default {
 		this.setUpLights(scene);
 		this.setCameraLocation(camera, self.settings.defaultCameraLocation);
 	},
-
-	// enableControls: function(controls, renderer, camera) {
-	// 	controls = new THREE.OrbitControls(camera, renderer.domElement);
-	// 	controls.target.set(0, 0, 0);
-	// 	controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
-	// 	controls.dampingFactor = 0.05;
-	// 	controls.zoomSpeed = 2;
-	// 	controls.enablePan = !utils.mobile();
-	// 	controls.minDistance = 10;
-	// 	controls.maxDistance = 500;
-	// 	controls.maxPolarAngle = Math.PI / 2;
-	// 	return controls;
-	// },
 
 	enableStats: function(stats) {
 		document.body.appendChild(stats.dom);

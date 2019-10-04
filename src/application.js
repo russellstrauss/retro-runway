@@ -2,8 +2,11 @@
 
 import * as THREE from 'three';
 import gfx from './graphics.js';
+import utils from './utils.js';
 import LeafGeometry from './LeafGeometry.js';
 import PalmGenerator from './PalmGenerator.js';
+import {PointLights} from './pointLights.js';
+const OrbitControls = require('three-orbit-controls')(THREE);
 
 var renderer, scene, camera, controls, floor;
 var pink = new THREE.Color('#EE1181');
@@ -12,6 +15,7 @@ var black = new THREE.Color('black');
 var white = new THREE.Color('white');
 let wireframeMaterial = new THREE.MeshBasicMaterial({ wireframe: true, color: pink, transparent: true, opacity: .3, side: THREE.DoubleSide });
 var count = 0;
+let sun;
 
 var leafOptions = [
 	{
@@ -149,8 +153,9 @@ let settings = {
 		gridColor: pink,
 		arrowColor: white
 	},
-	runwayWidth: 300,
-	treeSpacing: 250
+	runwayWidth: 500,
+	treeSpacing: 250,
+	sunDistance: 2000
 };
 
 function init() {
@@ -159,15 +164,32 @@ function init() {
 	renderer = gfx.setUpRenderer(renderer);
 	camera = gfx.setUpCamera(camera);
 	floor = gfx.addFloor(scene, settings.colors.worldColor, settings.colors.gridColor);
-			
+	controls = enableControls(controls, renderer, camera);
+	
     window.addEventListener('resize', function() {
         let WIDTH = window.innerWidth,
         HEIGHT = window.innerHeight;
         renderer.setSize(WIDTH, HEIGHT);
         camera.aspect = WIDTH / HEIGHT;
         camera.updateProjectionMatrix();
-    });
-    
+	});
+	
+	//add lights to the scene
+    // let ambientLight = new THREE.AmbientLight( 0x34ac0f );
+    // scene.add( ambientLight );
+    // renderer.setClearColor( 0x434343 );
+    // PointLights().map((light) => {
+    //     scene.add( light );
+	// });
+	// gfx.setCameraLocation(camera, new THREE.Vector3(settings.defaultCameraLocation.x, settings.defaultCameraLocation.y, settings.defaultCameraLocation.z));
+	// gfx.setCameraDirection(camera, new THREE.Vector3(settings.defaultCameraLocation.x + 1000, settings.defaultCameraLocation.y, settings.defaultCameraLocation.z));
+	
+	var geometry = new THREE.CircleGeometry( 500, 32 );
+	geometry.rotateY(-Math.PI / 2);
+	var material = new THREE.MeshBasicMaterial( { color: pink, fog: false } );
+	sun = new THREE.Mesh( geometry, material );
+	sun.position.x = settings.sunDistance;
+	scene.add(sun);
 	
 	let trees = [];
 	for (let i = 0; i < 20; i++) {
@@ -259,6 +281,8 @@ var animate = function() {
 	renderer.render(scene, camera);
 	gfx.setCameraLocation(camera, new THREE.Vector3(settings.defaultCameraLocation.x - (settings.cameraSpeed * count), settings.defaultCameraLocation.y, settings.defaultCameraLocation.z));
 	gfx.setCameraDirection(camera, new THREE.Vector3(settings.defaultCameraLocation.x + (1000 * count), settings.defaultCameraLocation.y, settings.defaultCameraLocation.z));
+	
+	sun.position.x = settings.defaultCameraLocation.x - (settings.cameraSpeed * count) + settings.sunDistance;
 	count++;
 };
 
@@ -276,6 +300,19 @@ function randomInt(min, max) {
 	min = Math.ceil(min);
 	max = Math.floor(max);
 	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function enableControls(controls, renderer, camera) {
+	controls = new OrbitControls(camera, renderer.domElement);
+	controls.target.set(0, 0, 0);
+	controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+	controls.dampingFactor = 0.05;
+	controls.zoomSpeed = 2;
+	controls.enablePan = !utils.mobile();
+	controls.minDistance = 10;
+	controls.maxDistance = 500;
+	controls.maxPolarAngle = Math.PI / 2;
+	return controls;
 }
 
 init();
