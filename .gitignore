@@ -1,1 +1,34 @@
-**/node_modules
+
+#-----------------------------------------------------------------------------#
+# Ignore everything by default:
+#-----------------------------------------------------------------------------#
+
+/*
+/*/
+#ignore emacs backup files
+*.#*
+
+
+#-----------------------------------------------------------------------------#
+# But allow those files and folders:
+#-----------------------------------------------------------------------------#
+
+!.editorconfig
+!.eslintrc.json
+!.gitattributes
+!.gitignore
+!README.md
+!LICENSE.md
+!example.png
+!example-curve.png
+!/src
+!/package.json
+!/webpack.config.js
+
+
+#-----------------------------------------------------------------------------#
+# But make sure to ignore those regardless:
+#-----------------------------------------------------------------------------#
+
+.DS_Store
+Thumbs.db
