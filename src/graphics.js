@@ -37,11 +37,11 @@ export default {
 
 	addFloor: function(scene, worldColor, gridColor) {
 
-		var planeGeometry = new THREE.PlaneBufferGeometry(10000, 10000);
+		var planeGeometry = new THREE.PlaneBufferGeometry(10000 * 2, 10000 * 2);
 		planeGeometry.rotateX(-Math.PI / 2);
 		var planeMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('black')});
 		var plane = new THREE.Mesh(planeGeometry, planeMaterial);
-		plane.position.y = -1;
+		plane.position.y = -4;
 		scene.add(plane);
 
 		var helper = new THREE.GridHelper(10000, 200, gridColor, gridColor);
@@ -49,8 +49,8 @@ export default {
 		helper.material.transparent = true;
 		scene.add(helper);
 		helper.translateOnAxis(new THREE.Vector3(0, 1, 0), .1);
-		scene.background = worldColor;
-		scene.fog = new THREE.Fog(new THREE.Color('black'), 500, 1200);
+		//scene.background = worldColor;
+		scene.fog = new THREE.Fog(new THREE.Color('black'), 500, 1000);
 		
 		return plane;
 	},
@@ -227,7 +227,6 @@ export default {
 	setUpScene: function(scene, renderer) {
 
 		scene = new THREE.Scene();
-		scene.background = new THREE.Color(0xf0f0f0);
 
 		if (this.appSettings.axesHelper.activateAxesHelper) {
 
@@ -237,7 +236,7 @@ export default {
 	},
 
 	setUpRenderer: function(renderer) {
-		renderer = new THREE.WebGLRenderer();
+		renderer = new THREE.WebGLRenderer({ alpha: true });
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		document.body.appendChild(renderer.domElement);
 		return renderer;
@@ -263,11 +262,12 @@ export default {
 		let dotGeometry = new THREE.Geometry();
 		dotGeometry.vertices.push(new THREE.Vector3(pt.x, pt.y, pt.z));
 		let dotMaterial = new THREE.PointsMaterial({ 
-			size: 10,
+			size: 2,
 			sizeAttenuation: false,
 			color: color,
 			opacity: opacity,
-			transparent: true
+			transparent: true,
+			fog: false
 		});
 		let dot = new THREE.Points(dotGeometry, dotMaterial);
 		scene.add(dot);

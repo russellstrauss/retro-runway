@@ -15,7 +15,7 @@ var black = new THREE.Color('black');
 var white = new THREE.Color('white');
 let wireframeMaterial = new THREE.MeshBasicMaterial({ wireframe: true, color: pink, transparent: true, opacity: .3, side: THREE.DoubleSide });
 var count = 0;
-let sun;
+let sun, stars = [];
 let textureImage, canvas;
 
 var leafOptions = [
@@ -148,9 +148,9 @@ let settings = {
 		y: 100,
 		z: 0
 	},
-	cameraSpeed: 3,//.5,
+	cameraSpeed: 10,//.5,
 	colors: {
-		worldColor: black,
+		worldColor: new THREE.Color('red'),
 		gridColor: pink,
 		arrowColor: white
 	},
@@ -158,7 +158,7 @@ let settings = {
 	treeSpacing: 250,
 	sun: {
 		size: 600,
-		distance: 1500,
+		distance: 2000,
 		colors: {
 			top: '#EE1181',
 			bottom: 'red'
@@ -192,24 +192,23 @@ function init() {
 	// gfx.setCameraLocation(camera, new THREE.Vector3(settings.defaultCameraLocation.x, settings.defaultCameraLocation.y, settings.defaultCameraLocation.z));
 	// gfx.setCameraDirection(camera, new THREE.Vector3(settings.defaultCameraLocation.x + 1000, settings.defaultCameraLocation.y, settings.defaultCameraLocation.z));
 	
+	for (let i = 0; i < 1000; i++) {
+		
+		let randomX = weightedRandom(10000, 3);
+		let randomZ = weightedRandom(10000, 3);
+		randomX -= 5000;
+		randomZ -= 5000;
+			
+		// let star = gfx.showPoint(new THREE.Vector3(randomX, 1000, randomZ), scene, white, .25);
+		// stars.push(star);
+	}
 	
-
-	// image
+	// sun gradient
 	var texture = new THREE.Texture( generateTexture() );
 	textureImage = texture.image
-
-	// material texture
 	var texture = new THREE.Texture( generateTexture() );
 	texture.needsUpdate = true; // important!
-
-	// material
 	var material = new THREE.MeshBasicMaterial( { map: texture, overdraw: 0.5, fog: false } );
-	
-	// mesh
-	// mesh = new THREE.Mesh( geometry, material );
-	// scene.add( mesh );
-	
-	
 	var geometry = new THREE.CircleGeometry( settings.sun.size, 32 );
 	geometry.translate(0, 100, 0);
 	geometry.rotateY(-Math.PI / 2);
@@ -307,10 +306,22 @@ var animate = function() {
 
 	requestAnimationFrame(animate);
 	renderer.render(scene, camera);
-	gfx.setCameraLocation(camera, new THREE.Vector3(settings.defaultCameraLocation.x - (settings.cameraSpeed * count), settings.defaultCameraLocation.y, settings.defaultCameraLocation.z));
-	gfx.setCameraDirection(camera, new THREE.Vector3(settings.defaultCameraLocation.x + (1000 * count), settings.defaultCameraLocation.y, settings.defaultCameraLocation.z));
 	
-	sun.position.x = settings.defaultCameraLocation.x - (settings.cameraSpeed * count) + settings.sun.distance;
+	if (gfx.getDistance(camera.position, new THREE.Vector3(0, 0, 0)) > 10000) { // Reset camera location
+		gfx.setCameraLocation(camera, new THREE.Vector3(settings.defaultCameraLocation.x, settings.defaultCameraLocation.y, settings.defaultCameraLocation.z));
+		sun.position.x = camera.position.x + settings.sun.distance;
+		count = 0;
+	}
+	else {
+		gfx.setCameraLocation(camera, new THREE.Vector3(settings.defaultCameraLocation.x - (settings.cameraSpeed * count), settings.defaultCameraLocation.y, settings.defaultCameraLocation.z));
+		gfx.setCameraDirection(camera, new THREE.Vector3(settings.defaultCameraLocation.x + (1000 * count), settings.defaultCameraLocation.y, settings.defaultCameraLocation.z));
+	}
+	
+	let horizonDistance = settings.defaultCameraLocation.x - (settings.cameraSpeed * count) + settings.sun.distance;
+	sun.position.x = horizonDistance;
+	stars.forEach(function(star) {
+		//star.position.x = horizonDistance;
+	});
 	count++;
 };
 
@@ -343,6 +354,14 @@ function enableControls(controls, renderer, camera) {
 	return controls;
 }
 
+function weightedRandom(max, bellFactor) { // bellFactor 1, 2, 3
+    var num = 0;
+    for (var i = 0; i < bellFactor; i++) {
+        num += Math.random() * (max/bellFactor);
+    }    
+    return num;
+}
+
 function generateTexture() {
 
 	var size = 512;
@@ -364,8 +383,6 @@ function generateTexture() {
 	context.fill();
 
 	return canvas;
-
 }
-
 
 init();
