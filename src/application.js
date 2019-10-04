@@ -15,7 +15,7 @@ var black = new THREE.Color('black');
 var white = new THREE.Color('white');
 let wireframeMaterial = new THREE.MeshBasicMaterial({ wireframe: true, color: pink, transparent: true, opacity: .3, side: THREE.DoubleSide });
 var count = 0;
-let sun, stars = [];
+let sun, stars = [], trees = [];
 let textureImage, canvas;
 
 var leafOptions = [
@@ -148,7 +148,7 @@ let settings = {
 		y: 100,
 		z: 0
 	},
-	cameraSpeed: .5,
+	cameraSpeed: 1,
 	colors: {
 		worldColor: black,
 		gridColor: pink,
@@ -156,6 +156,10 @@ let settings = {
 	},
 	runwayWidth: 300,
 	treeSpacing: 250,
+	numberOfTrees: 50,
+	trees: {
+		fadeOutSpeed: .002
+	},
 	sun: {
 		size: 400,
 		distance: 1200,
@@ -219,8 +223,7 @@ function init() {
 	sun.position.x = settings.sun.distance;
 	scene.add(sun);
 	
-	let trees = [];
-	for (let i = 0; i < 50; i++) {
+	for (let i = 0; i < settings.numberOfTrees/2; i++) {
 		
 		let leaf_opt = {
 			length: randomInt(20, 50),
@@ -256,11 +259,12 @@ function init() {
 		let mesh = new THREE.Mesh(bufGeometry, wireframeMaterial);
 		scene.add(mesh);
 		mesh.position.z -= settings.runwayWidth + randomInt(-50, 50);
-		mesh.position.x -= (settings.treeSpacing * i - 1500) + randomInt(-50, 50);
+		//mesh.position.x -= (settings.treeSpacing * i - 1500) + randomInt(-50, 50);
+		mesh.position.x -= (settings.treeSpacing * i) + randomInt(-50, 50);
 		trees.push(mesh);
 	}
 	
-	for (let i = 0; i < 50; i++) {
+	for (let i = 0; i < settings.numberOfTrees/2; i++) {
 		
 		let leaf_opt = {
 			length: randomInt(20, 50),
@@ -323,10 +327,22 @@ var animate = function() {
 	stars.forEach(function(star) {
 		//star.position.x = horizonDistance;
 	});
+	
+	
+	
+	trees.forEach(function(tree) {
+		
+		tree.material.transparent = true;
+		let diff = parseFloat(camera.position.x - tree.position.x);
+		if (diff < -2500) {
+			if (tree.material.opacity > 0) tree.material.opacity -= settings.trees.fadeOutSpeed;
+		}
+	});
+	
 	count++;
 };
 
-function getCurve(){
+function getCurve() {
     var curve = new THREE.CatmullRomCurve3( [
 	      new THREE.Vector3( randomInt(-15, 15), 200, 0 ),
 	      new THREE.Vector3( randomInt(-15, 15), 100, 0 ),
